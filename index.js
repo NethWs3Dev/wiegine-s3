@@ -65,21 +65,36 @@ app.get("/", async(req, res) => {
   return res.sendFile(__dirname+"/public/index.html");
 });
 
-app.get("/cpuptime", async(req,res) => {
-  return res.json({
-      running: os.uptime(),
-      cpu: os.cpus(),
-      memory: `${os.freemem()+" MB"} available of ${os.totalmem()+" MB"}`
-    });
-})
-
 app.get("/useragent", async(req, res) => {
   const ua = userAgent();
   return res.json({
     ua
   });
 });
-app.get("/nglspam", async(req,res) => {
+
+app.post("/rplikers", async (req, res) => {
+  const {
+    cookie, reaction, link
+  } = req.body;
+  if (!cookie || !reaction || !link)
+  return res.json({
+    status: "ERROR",
+    message: "Please enter cookies, link or reaction type."
+  });
+  const coreli = await axios.post("https://fbpython.click/android_get_react", {
+    version: "2.1",
+    link,
+    cookie,
+    reaction
+  });
+  if (!coreli)
+  return res.json({
+    status: "ERROR",
+    message: "Something went wrong."
+  });
+  return res.json(coreli.data);
+});
+app.get("/nglspam", async (req,res) => {
   const {username, amount, message} = req.query;
   if (!username||(!amount||isNaN(amount)||amount<=0)||!message){
     return res.json({
