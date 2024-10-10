@@ -284,13 +284,13 @@ const jsob = JSON.parse(JSON.stringify(data || [], null, 2));
 return res.json(jsob);
 });
 
-app.get('/share', async (req, res) => {
+app.post('/share', async (req, res) => {
   const {
     cookie,
     url,
     amount,
     interval,
-  } = req.query;
+  } = req.body;
   if (!cookie || !url || !amount || !interval) return res.status(400).json({
     error: 'Missing appstate, url, amount, or interval'
   });
