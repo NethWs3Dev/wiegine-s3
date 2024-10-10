@@ -214,10 +214,11 @@ async function share(sharedIs,cookies, url, amount, interval) {
     'sec-ch-ua-mobile': '?0',
     'connection': 'keep-alive',
     'host': 'graph.facebook.com',
-    'user-agent': usersa(),
+    'user-agent': userAgent()[2],
   };
   async function sharePost() {
     try {
+      console.log("Sharing process!");
       const response = await axios.post(
       `https://graph.facebook.com/me/feed?access_token=${cookies}&fields=id&limit=1&published=0`,
       {
@@ -245,6 +246,7 @@ async function share(sharedIs,cookies, url, amount, interval) {
       if (sharedCount === amount) {
         clearInterval(timer);
       }
+      console.log(response.data);
     } catch (err) {
       clearInterval(timer);
       total.delete(id);
@@ -317,5 +319,5 @@ app.listen(port, async () => {
   console.log(`Running: http://localhost:${port}`);
 });
 process.on("unhandledRejection", async (reason, p) => {
-  console.error(reason);
+  console.log(reason);
 });
