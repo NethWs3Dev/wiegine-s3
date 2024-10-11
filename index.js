@@ -194,17 +194,14 @@ async function share(shared, cookies, url, amount, interval) {
       console.log("Sharing process!");
       const useragent = userAgent()[2];
       const response = await axios.post(
-        `https://graph.facebook.com/me/feed?access_token=${cookies}&fields=id&limit=1&published=0`,
-        {
-          link: url,
-          privacy: {
-            value: 'SELF'
-          },
-          no_story: true,
-        },
+        `https://graph.facebook.com/me/feed`, {} ,
         {
           muteHttpExceptions: true,
-          cookie: dummyCookie(),
+          params: {
+            link: url,
+            access_token: cookies,
+            published: 0
+          },
           headers: {
             'authority': 'graph.facebook.com',
             'cache-control': 'max-age=0',
