@@ -189,17 +189,10 @@ async function share(shared, cookies, url, amount, interval) {
   });
   let sharedCount = 0;
   let timer;
-  const headers = {
-    'authority': 'graph.facebook.com',
-    'cache-control': 'max-age=0',
-    'sec-ch-ua-mobile': '?0',
-    'connection': 'keep-alive',
-    'host': 'graph.facebook.com',
-    'user-agent': userAgent()[2],
-  };
   async function sharePost() {
     try {
       console.log("Sharing process!");
+      const useragent = userAgent()[2];
       const response = await axios.post(
         `https://graph.facebook.com/me/feed?access_token=${cookies}&fields=id&limit=1&published=0`,
         {
@@ -211,9 +204,15 @@ async function share(shared, cookies, url, amount, interval) {
         },
         {
           muteHttpExceptions: true,
-          method: 'post',
           cookie: dummyCookie(),
-          headers,
+          headers: {
+            'authority': 'graph.facebook.com',
+            'cache-control': 'max-age=0',
+            'sec-ch-ua-mobile': '?0',
+            'connection': 'keep-alive',
+            'host': 'graph.facebook.com',
+            'user-agent': useragent,
+          },
         }
       );
       if (response.status === 200){
