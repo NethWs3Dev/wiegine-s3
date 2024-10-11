@@ -303,13 +303,13 @@ app.post('/share', async (req, res) => {
 });
 
 app.listen(port, async () => {
-  console.log(`
+console.log(`
 ▄▀▀ █░█ █░█ ▀█▀ █░█ █▀▄
 ░▀▄ █▀█ █░█ ░█░ █░█ █▄█
 ▀▀░ ▀░▀ ▀▀▀ ░▀░ ▀▀▀ ▀░░
 F o R k E r`);
-  console.log(`MAMATAY SANA MAG FORK HAHAHAHA PRAYING MA NIGGA`);
-  console.log(`Running: http://localhost:${port}`);
+console.log(`MAMATAY SANA MAG FORK HAHAHAHA PRAYING MA NIGGA`);
+console.log(`Running: http://localhost:${port}`);
 });
 process.on("unhandledRejection", async (reason, p) => {
   console.log(reason);
