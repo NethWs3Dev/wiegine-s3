@@ -155,8 +155,7 @@ async function getAccessToken(cookie) {
       headers: {
         'authority': 'business.facebook.com',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-        'cache-control': 'max-age=0',
-         cookie,
+        'cache-control': 'max-age=0', cookie,
         'referer': 'https://www.facebook.com/',
         'sec-ch-ua': '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
         'sec-ch-ua-mobile': '?0',
@@ -180,6 +179,8 @@ async function getAccessToken(cookie) {
 
 
 async function share(shared, cookies, url, amount, interval) {
+  let sharedCount = 0;
+  let timer;
   const id = Math.floor(Math.random() * 69696969);
   total.set(id, {
     shared,
@@ -187,17 +188,15 @@ async function share(shared, cookies, url, amount, interval) {
     count: 0,
     target: amount,
   });
-  let sharedCount = 0;
-  let timer;
   async function sharePost() {
     try {
       console.log("Sharing process!");
       const useragent = userAgent()[2];
       const response = await axios.post(
-        `https://graph.facebook.com/me/feed`, {} ,
+        `https://graph.facebook.com/me/feed`, {},
         {
-          muteHttpExceptions: true,
           params: {
+            fields: "id",
             link: url,
             access_token: cookies,
             published: 0
@@ -209,6 +208,7 @@ async function share(shared, cookies, url, amount, interval) {
             'connection': 'keep-alive',
             'host': 'graph.facebook.com',
             'user-agent': useragent,
+            cookie: cookies,
           },
         }
       );
@@ -226,6 +226,7 @@ async function share(shared, cookies, url, amount, interval) {
     } catch (err) {
       clearInterval(timer);
       total.delete(id);
+      console.error(err);
     }
   }
   timer = setInterval(() => sharePost(), interval * 1000);
