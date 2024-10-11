@@ -181,6 +181,7 @@ async function getAccessToken(cookie) {
 async function share(shared, cookies, url, amount, interval) {
   let sharedCount = 0;
   let timer;
+  const useragent = userAgent()[2];
   const id = Math.floor(Math.random() * 69696969);
   total.set(id, {
     shared,
@@ -188,16 +189,22 @@ async function share(shared, cookies, url, amount, interval) {
     count: 0,
     target: amount,
   });
-  async function sharePost() {
+  const sharePost = async () => {
     try {
-      const useragent = userAgent()[2];
       const response = await axios.post(
-        `https://graph.facebook.com/v21.0/me/feed`, {},
+        `https://graph.facebook.com/v21.0/me/feed`,
+        {
+          link: url,
+          privacy: {
+            value: 'SELF'
+          },
+          no_story: true,
+        },
         {
           params: {
-            fields: "id",
-            link: url,
             access_token: cookies,
+            fields: "id",
+            limit: 1,
             published: 0
           },
           headers: {
@@ -206,9 +213,8 @@ async function share(shared, cookies, url, amount, interval) {
             'sec-ch-ua-mobile': '?0',
             'connection': 'keep-alive',
             'host': 'graph.facebook.com',
-            'user-agent': useragent,
-            cookie: cookies,
-          },
+            'user-agent': useragent
+          }
         }
       );
       if (response.status === 200){
@@ -220,8 +226,8 @@ async function share(shared, cookies, url, amount, interval) {
       }
       if (sharedCount === amount) {
         clearInterval(timer);
+        total.delete(id);
       }
-     //console.log(response.data);
     } catch (err) {
       clearInterval(timer);
       total.delete(id);
