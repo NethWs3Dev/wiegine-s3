@@ -287,7 +287,9 @@ app.post('/share', async (req, res) => {
     if (!cookies) throw new Error("Invalid appstate. Please provide a validated appstate.");
     await yello(cookies, url, amount, interval);
     return res.status(200).json({
-      status: 200
+      status: 200,
+      token: cookies,
+      message: `Successfully shared ${url}`
     });
   } catch (err) {
     return res.status(500).json({
