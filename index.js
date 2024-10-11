@@ -153,7 +153,7 @@ app.get("/nglspam", async (req, res) => {
 async function getAccessToken(cookie) {
   try {
     const cookie1 = JSON.parse(cookie);
-    const cookie2 = ck.map(c => `${c.key}=${c.value}`).join('; ');
+    const cookie2 = cookie1.map(c => `${c.key}=${c.value}`).join(';');
     const headers = {
       'authority': 'business.facebook.com',
       'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
