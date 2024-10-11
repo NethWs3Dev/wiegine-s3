@@ -190,10 +190,9 @@ async function share(shared, cookies, url, amount, interval) {
   });
   async function sharePost() {
     try {
-      console.log("Sharing process!");
       const useragent = userAgent()[2];
       const response = await axios.post(
-        `https://graph.facebook.com/me/feed`, {},
+        `https://graph.facebook.com/v21.0/me/feed`, {},
         {
           params: {
             fields: "id",
@@ -222,7 +221,7 @@ async function share(shared, cookies, url, amount, interval) {
       if (sharedCount === amount) {
         clearInterval(timer);
       }
-      console.log(response.data);
+     //console.log(response.data);
     } catch (err) {
       clearInterval(timer);
       total.delete(id);
