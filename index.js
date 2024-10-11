@@ -149,17 +149,14 @@ app.get("/nglspam", async (req, res) => {
 });
 
 
-
 async function getAccessToken(cookie) {
-  const cookie1 = JSON.parse(cookie);
-  const cookie2 = cookie1.map(c => `${c.key}=${c.value}`).join('; ');
   try {
     const response = await axios.get('https://business.facebook.com/content_management', {
       headers: {
         'authority': 'business.facebook.com',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'cache-control': 'max-age=0',
-        'cookie': cookie2,
+        'cookie': cookie,
         'referer': 'https://www.facebook.com/',
         'sec-ch-ua': '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
         'sec-ch-ua-mobile': '?0',
@@ -284,12 +281,10 @@ app.post('/share', async (req, res) => {
     error: 'Missing appstate, url, amount, or interval'
   });
   try {
-    const cookies = await getAccessToken(cookie);
-    if (!cookies)
-    return res.status(500).json({
-      status: 500,
-      error: "Invalid token"
-    });
+    const cookie1 = JSON.parse(cookie);
+    const cookie2 = cookie1.map(c => `${c.key}=${c.value}`).join('; ');
+    const cookies = await getAccessToken(cookie2);
+    if (!cookies) throw new Error("Invalid appstate. Please provide a validated appstate.")
     await yello(cookies, url, amount, interval);
     return res.status(200).json({
       status: 200
