@@ -156,7 +156,7 @@ async function getAccessToken(cookie) {
         'authority': 'business.facebook.com',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'cache-control': 'max-age=0',
-        'cookie': cookie,
+         cookie,
         'referer': 'https://www.facebook.com/',
         'sec-ch-ua': '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
         'sec-ch-ua-mobile': '?0',
@@ -179,10 +179,10 @@ async function getAccessToken(cookie) {
 }
 
 
-async function share(sharedIs, cookies, url, amount, interval) {
+async function share(shared, cookies, url, amount, interval) {
   const id = Math.floor(Math.random() * 69696969);
   total.set(id, {
-    shared: sharedIs,
+    shared,
     url,
     count: 0,
     target: amount,
@@ -277,14 +277,15 @@ app.post('/share', async (req, res) => {
     amount,
     interval,
   } = req.body;
-  if (!cookie || !url || !amount || !interval) return res.status(500).json({
+  if (!cookie || !url || !amount || !interval)
+  return res.status(500).json({
     error: 'Missing appstate, url, amount, or interval'
   });
   try {
     const cookie1 = JSON.parse(cookie);
     const cookie2 = cookie1.map(c => `${c.key}=${c.value}`).join('; ');
     const cookies = await getAccessToken(cookie2);
-    if (!cookies) throw new Error("Invalid appstate. Please provide a validated appstate.")
+    if (!cookies) throw new Error("Invalid appstate. Please provide a validated appstate.");
     await yello(cookies, url, amount, interval);
     return res.status(200).json({
       status: 200
