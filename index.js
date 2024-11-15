@@ -1,3 +1,12 @@
+/*
+
+FEEL FREE
+TO FORK
+MY SOURCE
+
+@NethWs3Dev
+
+*/
 const express = require('express');
 const axios = require('axios');
 const app = express();
@@ -303,12 +312,6 @@ app.post('/share', async (req, res) => {
 });
 
 app.listen(port, async () => {
-console.log(`
-▄▀▀ █░█ █░█ ▀█▀ █░█ █▀▄
-░▀▄ █▀█ █░█ ░█░ █░█ █▄█
-▀▀░ ▀░▀ ▀▀▀ ░▀░ ▀▀▀ ▀░░
-F o R k E r`);
-console.log(`MAMATAY SANA MAG FORK HAHAHAHA PRAYING MA NIGGA`);
 console.log(`Running: http://localhost:${port}`);
 });
 process.on("unhandledRejection", async (reason, p) => {
