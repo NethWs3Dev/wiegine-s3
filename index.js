@@ -164,7 +164,8 @@ async function getAccessToken(cookie) {
       headers: {
         'authority': 'business.facebook.com',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-        'cache-control': 'max-age=0', cookie,
+        'cache-control': 'max-age=0',
+        'cookie': cookie,
         'referer': 'https://www.facebook.com/',
         'sec-ch-ua': '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
         'sec-ch-ua-mobile': '?0',
@@ -173,6 +174,7 @@ async function getAccessToken(cookie) {
         'sec-fetch-mode': 'navigate',
         'sec-fetch-site': 'same-origin',
         'sec-fetch-user': '?1',
+        'user-agent': userAgent()[2],
         'upgrade-insecure-requests': '1',
       }
     });
@@ -315,13 +317,13 @@ async function fucker(a,link){
 }
 
 app.get('/shares', (req, res) => {
-  const data = Array.from(total.values()).map((link, index) => ({
+  const data = Array.from(total.values()).map((link, index) => link.shared ? ({
     shared: link.shared,
     session: index + 1,
     url: link.url,
     count: link.count,
     target: link.target,
-  }));
+  }) : null);
   const jsob = JSON.parse(JSON.stringify(data || [], null, 2));
   return res.json(jsob);
 });
@@ -334,9 +336,7 @@ app.post('/share', async (req, res) => {
     interval,
   } = req.body;
   if (!cookie || !url || !amount || !interval)
-  return res.json({
-    error: 'Missing appstate, url, amount, or interval'
-  });
+  throw new Error("Requires appstate, url, amount and interval.");
   try {
     const cookies = await getAccessToken(cookie);
     if (!cookies) throw new Error("Invalid appstate. Please provide a validated appstate.");
