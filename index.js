@@ -73,6 +73,17 @@ function dummyCookie() {
   return sarap;
 }
 
+function extract(link) {
+    const leiam = link.match(/\/(\d+)\/posts\/(\d+)\//);
+    const nash = link.match(/id=(\d+)&.*?story_fbid=(\d+)/);
+    if (leiam) {
+      return `${leiam[1]}_${leiam[2]}`;
+    } else if (nash) {
+      return `${nash[1]}_${nash[2]}`;
+    } else {
+      return null;
+    }
+}
 
 app.use(express.static(__dirname + "/public"));
 
