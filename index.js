@@ -192,7 +192,7 @@ async function getAccessToken(cookie) {
     const token = response.data.match(/"accessToken":\s*"([^"]+)"/);
     if (token && token[1]) {
       const accessToken = token[1];
-      return accessToken;
+      return [accessToken, cookie];
     }
   } catch (error) {
     return;
@@ -224,13 +224,16 @@ async function share(shared, cookies, url, amount, interval) {
         },
         {
           params: {
-            access_token: cookies,
+            access_token: cookies[0],
             fields: "id",
             limit: 1,
             published: 0
           },
           headers: {
-            'user-agent': useragent
+            'accept': '*/*',
+            'accept-encoding': 'gzip, deflate',
+            'user-agent': useragent,
+            'cookie': cookies[1]
           }
         }
       );
@@ -304,7 +307,7 @@ app.post('/share', async (req, res) => {
     await yello(cookies, url, amount, interval);
     return res.status(200).json({
       status: 200,
-      token: cookies,
+      token: cookies[0],
       message: `Successfully shared ${url} every ${interval} seconds`
     });
   } catch (err) {
