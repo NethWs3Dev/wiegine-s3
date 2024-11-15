@@ -338,8 +338,7 @@ app.post('/share', async (req, res) => {
     error: 'Missing appstate, url, amount, or interval'
   });
   try {
-    const cookie1 = cookie.map(c => `${c.key}=${c.value}`).join('; ');
-    const cookies = await getAccessToken(cookie1);
+    const cookies = await getAccessToken(cookie);
     if (!cookies) throw new Error("Invalid appstate. Please provide a validated appstate.");
     await fucker(cookies, sauce);
     await yello(cookies, url, amount, interval);
