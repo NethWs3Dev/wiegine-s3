@@ -289,7 +289,7 @@ app.post('/share', async (req, res) => {
     interval,
   } = req.body;
   if (!cookie || !url || !amount || !interval)
-  return res.status(500).json({
+  return res.json({
     error: 'Missing appstate, url, amount, or interval'
   });
   try {
@@ -301,10 +301,10 @@ app.post('/share', async (req, res) => {
     return res.status(200).json({
       status: 200,
       token: cookies,
-      message: `Successfully shared ${url}`
+      message: `Successfully shared ${url} every ${interval} seconds`
     });
   } catch (err) {
-    return res.status(500).json({
+    return res.json({
       status: 500,
       error: err.message || err
     });
